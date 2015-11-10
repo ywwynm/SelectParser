@@ -50,8 +50,6 @@ public class Test {
             result = database.execSQL("select (name) from (user) " +
                     "where (((not (not (name='zq')))) or (not (name<>'zq')))");
             System.out.println("result:");
-            System.out.print("haha");
-            System.out.print("haha");
             for (String row: result) {
                 System.out.println(row);
             }
