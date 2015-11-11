@@ -62,8 +62,7 @@ public class LogicCalculator {
                 than '&'. The false and true will be popped and calculate with
                 '&'. Result is false, so false will be pushed into booleans.
                 Continuously, compare '#' and '#'. There levels are all -1,
-                nothing will happen in inner cycle. Then stack of operators
-                is empty, inner cycle will end.
+                inner cycle will end.
             13. All characters have been read. Final result is false.
          */
 
@@ -101,9 +100,7 @@ public class LogicCalculator {
                             booleans.push(calculate(b1, opr, b2));
                         }
                     } else if (cmp == 0) {
-                        if (topOpr.getLevel() == 0) {
-                            break;
-                        }
+                        break;
                     } else {
                         operators.push(topOpr);
                     }
