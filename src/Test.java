@@ -38,17 +38,19 @@ public class Test {
             user.addRow(new Row(rowData));
         }
 
-        Database database = Database.getInstance();
+        Database database = new Database();
         database.addTable(user);
 
         List<String> result;
         try {
-            result = database.execSQL("select (name, sex, height) from (user) " +
-                    "where (((age=19) or (age=20)) and (not ((height>=175) or (weight<=60))))");
-            result = database.execSQL("select (*) from (user) " +
-                    "where (((age > 19) and (sex='男')) or ((height<174) and (weight>=57)))");
-            result = database.execSQL("select (name) from (user) " +
+//            result = database.query("select (name, sex, height) from (user) " +
+//                    "where (((age=19) or (age=20)) and (not ((height>=175) or (weight<=60))))");
+//            result = database.query("select (*) from (user) " +
+//                    "where (((age > 19) and (sex='男')) or ((height<174) and (weight>=57)))");
+            result = database.query("select (name) from (user) " +
                     "where (((not (not (name='zq')))) or (not (name<>'zq')))");
+//            result = database.query("select (name) from (user) " +
+//                    "where (height >= 176)");
             System.out.println("result:");
             for (String row: result) {
                 System.out.println(row);

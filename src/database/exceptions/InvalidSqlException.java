@@ -8,4 +8,8 @@ public class InvalidSqlException extends Exception {
     public InvalidSqlException() {
         super("Invalid sql sentence.");
     }
+
+    public InvalidSqlException(String msg) {
+        super(msg);
+    }
 }
