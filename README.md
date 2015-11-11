@@ -1,3 +1,3 @@
 # SelectParser
 
-A simple simulation for select sentence in database operation.
+A simple simulation for parsing select SQL statement.
