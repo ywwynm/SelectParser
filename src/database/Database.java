@@ -3,7 +3,6 @@ package database;
 import core.LogicCalculator;
 import core.ParamsSplitter;
 import database.exceptions.InvalidSqlException;
-import utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -129,10 +128,17 @@ public class Database {
 
                     // replace atomic expression with its value for this row
                     String[] binaryExp = splitter.splitBinaryExpression(exp);
-                    boolean match = row.match(
+                    int match = row.match(
                             binaryExp[0], binaryExp[1], binaryExp[2]);
-                    String replacement = match ? "t" : "f";
-                    simplerWhereForThisRow = StringUtils.replaceBetweenIndex(
+                    if (match == -2) {
+                        throw new InvalidSqlException(
+                                "Wrong column names for this table");
+                    } else if (match == -1) {
+                        throw new InvalidSqlException(
+                                "fields' types do not always equal constants' types");
+                    }
+                    String replacement = match == 1 ? "t" : "f";
+                    simplerWhereForThisRow = replaceBetweenIndex(
                             simplerWhereForThisRow, replacement,
                             index, index + expLength);
 
@@ -165,5 +171,10 @@ public class Database {
             }
         }
         return null;
+    }
+
+    private static String replaceBetweenIndex(String src, String replacement,
+                                             int from, int end) {
+        return src.substring(0, from) + replacement + src.substring(end, src.length());
     }
 }

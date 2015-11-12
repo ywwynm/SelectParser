@@ -18,15 +18,15 @@ public class MatchUtils {
                 return false;
             case "=":
                 return a == b;
-            case "<>":
+            case "^":
                 return a != b;
             case ">":
                 return a > b;
             case "<":
                 return a < b;
-            case ">=":
+            case "}":
                 return a >= b;
-            case "<=":
+            case "{":
                 return a <= b;
         }
     }
@@ -37,15 +37,15 @@ public class MatchUtils {
                 return false;
             case "=":
                 return a.equals(b);
-            case "<>":
+            case "^":
                 return !a.equals(b);
             case ">":
                 return a.compareTo(b) > 0;
             case "<":
                 return a.compareTo(b) < 0;
-            case ">=":
+            case "}":
                 return a.compareTo(b) >= 0;
-            case "<=":
+            case "{":
                 return a.compareTo(b) <= 0;
         }
     }

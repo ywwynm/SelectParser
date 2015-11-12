@@ -23,4 +23,9 @@ public class Field {
     public String getType() {
         return mType;
     }
+
+    @Override
+    public String toString() {
+        return "field.name:" + mName + ", field.type:" + mType;
+    }
 }

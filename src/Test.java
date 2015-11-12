@@ -13,6 +13,34 @@ import java.util.*;
 public class Test {
 
     public static void main(String... args) {
+        Database database = new Database();
+        database.addTable(generateTestTable1());
+        database.addTable(generateTestTable2());
+
+        List<String> result;
+        try {
+//            result = database.query("select (name, sex, height) from (user) " +
+//                    "where (((age=19) or (age=20)) and (not ((height>=175) or (weight<=60))))");
+//            result = database.query("select (*) from (user) " +
+//                    "where (((age > 19) and (sex='男')) or ((height<174) and (weight>=57)))");
+//            result = database.query("select (name) from (user) " +
+//                    "where (((not (not (name='zq')))) or (not (name<>'zq')))");
+//            result = database.query("select (name) from (user) " +
+//                    "where (height >= 176)");
+//            result = database.query("select (selectFrom) from (strange_table) " +
+//                    "where (whereFrom >='b')");
+//            result = database.query("select (whereFrom) from (strange_table)" +
+//                    "where (hehe='lala')");
+            result = database.query("select (*) from (user) " +
+                    "where (age<>     20.0)");
+            System.out.println("result:");
+            result.forEach(System.out::println);
+        } catch (InvalidSqlException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Table generateTestTable1() {
         String[] fieldNames = { "name", "sex", "age", "height", "weight" };
         String[] fieldTypes = { "varchar", "varchar", "integer", "integer", "double" };
 
@@ -37,27 +65,32 @@ public class Test {
             }
             user.addRow(new Row(rowData));
         }
+        return user;
+    }
 
-        Database database = new Database();
-        database.addTable(user);
+    private static Table generateTestTable2() {
+        String[] fieldNames = { "selectFrom", "whereFrom" };
+        String[] fieldTypes = { "varchar", "varchar" };
 
-        List<String> result;
-        try {
-//            result = database.query("select (name, sex, height) from (user) " +
-//                    "where (((age=19) or (age=20)) and (not ((height>=175) or (weight<=60))))");
-//            result = database.query("select (*) from (user) " +
-//                    "where (((age > 19) and (sex='男')) or ((height<174) and (weight>=57)))");
-            result = database.query("select (name) from (user) " +
-                    "where (((not (not (name='zq')))) or (not (name<>'zq')))");
-//            result = database.query("select (name) from (user) " +
-//                    "where (height >= 176)");
-            System.out.println("result:");
-            for (String row: result) {
-                System.out.println(row);
-            }
-        } catch (InvalidSqlException e) {
-            e.printStackTrace();
+        List<Field> fields = new ArrayList<>();
+        for (int i = 0; i < fieldNames.length; i++) {
+            fields.add(new Field(fieldNames[i], fieldTypes[i]));
         }
+
+        Table strange = new Table("strange_table", fields);
+
+        Object[][] datas = new Object[2][];
+        datas[0] = new String[]  { "hehe", "memeda", "mengmengda" };
+        datas[1] = new String[]  { "alie", "bikaqiu", "enne" };
+        LinkedHashMap<String, Object> rowData;
+        for (int i = 0; i < datas[0].length; i++) {
+            rowData = new LinkedHashMap<>(datas.length);
+            for (int j = 0; j < datas.length; j++) {
+                rowData.put(fieldNames[j], datas[j][i]);
+            }
+            strange.addRow(new Row(rowData));
+        }
+        return strange;
     }
 
 }

@@ -7,7 +7,7 @@ import java.util.*;
 
 /**
  * Created by 张启 on 2015/11/3.
- * Row in a table
+ * Row in a table.
  */
 public class Row {
 
@@ -27,35 +27,46 @@ public class Row {
         this.table = table;
     }
 
-    public boolean match(String columnName, String opr, String arg) {
+    public int match(String columnName, String opr, String arg) {
         Object value = mValues.get(columnName);
+        if (value == null) {
+            return -2;
+        }
+
         Field field = table.getFieldByName(columnName);
         String type = field.getType();
 
         if ("integer".equals(type)) {
-            Integer argInt = Integer.valueOf(arg);
-            if (argInt == null) {
-                return false;
-            } else {
-                return MatchUtils.match((Integer) value, opr, argInt);
+            Integer argInt;
+            try {
+                argInt = Integer.valueOf(arg);
+            } catch (NumberFormatException e) {
+                Double argDbl;
+                try {
+                    argDbl = Double.valueOf(arg);
+                } catch (NumberFormatException doubleE) {
+                    return -1;
+                }
+                return MatchUtils.match((Integer) value, opr, argDbl) ? 1 : 0;
             }
-        } else if ("double".equals(type)) {
+            return MatchUtils.match((Integer) value, opr, argInt) ? 1 : 0;
+        } else if ("double".equals(type) || "integer".equals(type)) {
             Double argDbl;
             try {
                 argDbl = Double.valueOf(arg);
             } catch (NumberFormatException e) {
-                return false;
+                return -1;
             }
-            return MatchUtils.match((Double) value, opr, argDbl);
+            return MatchUtils.match((Double) value, opr, argDbl) ? 1 : 0;
         } else if ("varchar".equals(type)) {
             if (!arg.startsWith("'") || !arg.endsWith("'")) {
-                return false;
+                return -1;
             } else {
                 return MatchUtils.match((String) value, opr,
-                        arg.replaceAll("'", ""));
+                        arg.replaceAll("'", "")) ? 1 : 0;
             }
         }
-        return false;
+        return 0;
     }
 
     public List<String> getFieldNames() {
