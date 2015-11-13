@@ -1,7 +1,13 @@
 package database;
 
+import database.exceptions.FieldNotFoundException;
+import utils.MatchUtils;
+import utils.StringUtils;
+
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by 张启 on 2015/11/3.
@@ -13,35 +19,51 @@ public class Table {
 
     private List<Field> mFields;
 
-    private List<Row> mRows;
+    private List<Row> mRows = new ArrayList<>();
 
-    public Table(String name, List<Field> fields) {
-        mName   = name;
-        mFields = fields;
-        mRows   = new ArrayList<>();
+    public Table(String name) {
+        mName = name;
+    }
+
+    public void setFields(String[] fieldNames, String[] fieldTypes) {
+        if (mFields == null) {
+            mFields = new ArrayList<>();
+        } else {
+            mFields.clear();
+        }
+        if (fieldNames == null || fieldTypes == null ||
+                fieldNames.length != fieldTypes.length) {
+            // todo exception here.
+            return;
+        }
+
+        mRows.clear();
+        for (int i = 0; i < fieldNames.length; i++) {
+            Field field = new Field(fieldNames[i], fieldTypes[i]);
+            mFields.add(field);
+        }
     }
 
     public String getName() {
         return mName;
     }
 
-    public Field getFieldByName(String name) {
+    public Field getFieldByName(String name)
+            throws FieldNotFoundException {
         for (Field field : mFields) {
             if (name.equals(field.getName())) {
                 return field;
             }
         }
-        return null;
+        throw new FieldNotFoundException(name);
     }
 
-    public List<Field> getFieldsByNames(List<String> names) {
+    public List<Field> getFieldsByNames(List<String> names)
+            throws FieldNotFoundException {
         List<Field> fields = new ArrayList<>();
         Field field;
         for (String name : names) {
             field = getFieldByName(name);
-            if (field == null) {
-                return null;
-            }
             fields.add(field);
         }
         return fields;
@@ -55,19 +77,167 @@ public class Table {
         return mRows;
     }
 
-    public boolean addRow(Row row) {
-        List<String> fieldNames = row.getFieldNames();
-        int size = fieldNames.size();
+    public void addRow(LinkedHashMap<String, Object> rowData) {
+        int size = rowData.size();
         if (size != mFields.size()) {
-            return false;
+            // todo exception here
+            return;
         }
         for (int i = 0; i < size; i++) {
-            if (!mFields.get(i).getName().equals(fieldNames.get(i))) {
-                return false;
+            Field field = mFields.get(i);
+            String fieldName = field.getName();
+            Object value = rowData.get(fieldName);
+            if (value == null) {
+                // todo exception here
+                return;
+            }
+            if (!field.isValueMatchingType(value)) {
+                return;
             }
         }
-        row.setTable(this);
-        mRows.add(row);
-        return true;
+        mRows.add(new Row(rowData));
+    }
+
+    class Row {
+        private LinkedHashMap<String, Object> mData;
+
+        public Row(LinkedHashMap<String, Object> rowData) {
+            mData = rowData;
+        }
+
+        /**
+         * See if this row can match the requirement given by combination of parameters.
+         * @param fieldName field's name.
+         * @param opr operator signal. should be one of =,<,>,{,} and ^.
+         * @param arg constant used to compare with.
+         * @return -3 if one of parameters is empty;
+         *          -2 if operator is invalid;
+         *          -1 if field's type doesn't equal {@param arg}'s or they cannot
+         *          compare with each other after legal type conversion;
+         *          1 if this row can match the requirement, 0 otherwise.
+         * @throws FieldNotFoundException if field with {@param fieldName} does not
+         *          exist.
+         */
+        public int match(String fieldName, String opr, String arg)
+                throws FieldNotFoundException {
+            if (StringUtils.isEmptyString(fieldName)
+                    || StringUtils.isEmptyString(opr)
+                    || StringUtils.isEmptyString(arg)) {
+                return -3;
+            }
+
+            if (!MatchUtils.isOperatorValid(opr)) {
+                return -2;
+            }
+
+            Object value = mData.get(fieldName);
+            if (value == null) {
+                throw new FieldNotFoundException(fieldName);
+            }
+
+            Field field = getFieldByName(fieldName);
+            String type = field.getType();
+
+            if ("integer".equals(type)) {
+                Integer argInt;
+                try {
+                    argInt = Integer.valueOf(arg);
+                } catch (NumberFormatException e) {
+                    // integer column's value can compare with double argument.
+                    Double argDbl;
+                    try {
+                        argDbl = Double.valueOf(arg);
+                    } catch (NumberFormatException doubleE) {
+                        return -1;
+                    }
+                    return MatchUtils.match((Integer) value, opr, argDbl) ? 1 : 0;
+                }
+                return MatchUtils.match((Integer) value, opr, argInt) ? 1 : 0;
+            } else if ("double".equals(type) || "integer".equals(type)) {
+                Double argDbl;
+                try {
+                    argDbl = Double.valueOf(arg);
+                } catch (NumberFormatException e) {
+                    return -1;
+                }
+                return MatchUtils.match((Double) value, opr, argDbl) ? 1 : 0;
+            } else if ("varchar".equals(type)) {
+                if (!arg.startsWith("'") || !arg.endsWith("'")) {
+                    return -1;
+                } else {
+                    return MatchUtils.match(((String) value).replaceAll("'", ""),
+                            opr, arg.replaceAll("'", "")) ? 1 : 0;
+                }
+            }
+            return 0;
+        }
+
+        public Object getValue(String columnName) throws FieldNotFoundException {
+            Object value = mData.get(columnName);
+            if (value == null) {
+                throw new FieldNotFoundException(columnName);
+            } else {
+                return value;
+            }
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (Object o : mData.entrySet()) {
+                Map.Entry entry = (Map.Entry) o;
+                sb.append(entry.getKey());
+                sb.append(":");
+                sb.append(entry.getValue());
+                sb.append(" ");
+            }
+            return sb.toString();
+        }
+    }
+
+    class Field {
+
+        private String mName;
+        private String mType;
+
+        public Field(String name, String type) {
+            mName = name;
+            mType = type;
+        }
+
+        public String getName() {
+            return mName;
+        }
+
+        public String getType() {
+            return mType;
+        }
+
+        public boolean isValueMatchingType(Object value) {
+            if ("integer".equals(mType)) {
+                if (!(value instanceof Integer)) {
+                    return false;
+                }
+            } else if ("double".equals(mType)) {
+                if (!(value instanceof Double) && !(value instanceof Integer)) {
+                    return false;
+                }
+            } else if ("varchar".equals(mType)) {
+                if (!(value instanceof String)) {
+                    return false;
+                } else {
+                    String trueValue = (String) value;
+                    if (!trueValue.startsWith("'") || !trueValue.endsWith("'")) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "field.name:" + mName + ", field.type:" + mType;
+        }
     }
 }

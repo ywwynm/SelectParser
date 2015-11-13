@@ -23,8 +23,8 @@ public class LogicCalculator {
 
         // Try to simplify the expression by directly changing
         // separate "!f" or "!t" into their true values.
-        finalExp = finalExp.replaceAll("\\(!t\\)", "f");
-        finalExp = finalExp.replaceAll("\\(!f\\)", "t");
+        finalExp = finalExp.replaceAll("\\(~t\\)", "f");
+        finalExp = finalExp.replaceAll("\\(~f\\)", "t");
         finalExp += '#';
 
         /*
@@ -33,15 +33,15 @@ public class LogicCalculator {
             or calculate according to level of top operator and current
             operator.
 
-            For example, suppose the exp is "(t)&(!((f)|(t)))". After pretreatment,
-            it will become "t&(!(f|t))#", the calculating steps are:
+            For example, suppose the exp is "(t)&(~((f)|(t)))". After pretreatment,
+            it will become "t&(~(f|t))#", the calculating steps are:
             1. A '#' is pushed into operators.
             2. 't' isn't a signal, stored with lastBool.
             3. lastBool is 't', true will be pushed into booleans. Current
                operator is '&', whose lever is higher than '#', pushed
                into operators.
             4. lastBool is 0. Current operator is '(', pushed into operators.
-            5. lastBool is 0. Current operator is '!', pushed into operators.
+            5. lastBool is 0. Current operator is '~', pushed into operators.
             6. lastBool is 0. Current operator is '(', pushed into operators.
             7. 'f' isn't a signal, stored with lastBool.
             8. lastBool is 'f', false will be pushed into booleans. Current
@@ -54,7 +54,7 @@ public class LogicCalculator {
                true will be pushed into booleans. Continuously, compare ')'
                and '('. Their levels are all 0, so inner cycle will end.
             11. lastBool is 0. Current operator is ')', whose level is lower
-                than '!'. The true will be popped and calculate with '!'.
+                than '~'. The true will be popped and calculate with '~'.
                 Result is false, so false will be pushed into booleans.
                 Continuously, compare ')' with '('. Their levels are all 0,
                 so inner cycle will end.
@@ -92,7 +92,7 @@ public class LogicCalculator {
                         break;
                     } else if (cmp > 0 || (cmp == 0 && topOpr.getLevel() > 0)) {
                         char opr = topOpr.toChar();
-                        if (opr == '!') {
+                        if (opr == '~') {
                             booleans.push(!booleans.pop());
                         } else {
                             boolean b2 = booleans.pop();

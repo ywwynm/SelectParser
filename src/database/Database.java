@@ -2,12 +2,12 @@ package database;
 
 import core.LogicCalculator;
 import core.ParamsSplitter;
+import database.exceptions.FieldNotFoundException;
 import database.exceptions.InvalidSqlException;
+import utils.StringUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by 张启 on 2015/11/8.
@@ -39,36 +39,37 @@ public class Database {
     /**
      * Query the database and find rows that match user's requirements
      * and with given fields from each table.
-     * @param sql the select sql to execute
-     * @return matched rows with given fields described by words.
+     * @param sql the "select" sql to parse and execute
+     * @return matched rows with given fields described in words.
      * @throws InvalidSqlException if {@param sql} is invalid to parse
-     * and execute.
+     *          and execute.
      */
-    public List<String> query(String sql) throws InvalidSqlException {
-        ParamsSplitter splitter = ParamsSplitter.newInstance(sql);
-        if (splitter == null) {
-            throw new InvalidSqlException();
+    public List<String> query(String sql) throws
+            InvalidSqlException, FieldNotFoundException {
+        if (StringUtils.isEmptyString(sql)) {
+            throw new InvalidSqlException("SQL statement is empty");
         }
+        ParamsSplitter splitter = new ParamsSplitter(sql);
 
         String select = splitter.getSelectParams();
         String from   = splitter.getFromParams();
         String where  = splitter.getWhereParams();
 
-        Table table = getTableByName(from);
-        if (table == null) {
-            throw new InvalidSqlException(
-                    "No table matched in this database");
+        if (select.isEmpty() || from.isEmpty()) {
+            throw new InvalidSqlException();
         }
 
-        List<Field> fields;
+        Table table = getTableByName(from);
+        if (table == null) {
+            throw new InvalidSqlException("Table " + from + " does not exist " +
+                    "in this database");
+        }
+
+        List<Table.Field> fields;
         if ("*".equals(select)) {
             fields = table.getFields();
         } else {
             fields = table.getFieldsByNames(splitter.splitSelectParams());
-        }
-        if (fields == null) {
-            throw new InvalidSqlException(
-                    "Wrong column names for this table");
         }
 
         String[] fieldNames = new String[fields.size()];
@@ -76,36 +77,36 @@ public class Database {
             fieldNames[i] = fields.get(i).getName();
         }
 
-        List<Row> matchedRows = new ArrayList<>();
+        List<Table.Row> matchedRows = new ArrayList<>();
         if (where.isEmpty()) {
             matchedRows = table.getRows();
         } else {
-            List<Row> rows = table.getRows();
+            List<Table.Row> rows = table.getRows();
 
             // Atomic expressions with their indexes after "where".
             List<String> expInfos = splitter.splitWhereParams();
 
             // The expression after "where" with logical operator in words
             // replaced with signals.
-            String simplerWhere = splitter.getWhereParams();
+            where = splitter.getWhereParams();
 
             /*
                 The basic thought of this algorithm is to replace every
                 atomic expressions after "where" with their values for each
-                row at first. Then handle logical calculates with a Stack.
+                row at first. Then handle logical calculates using a Stack.
 
                 For example, if expression after "where" is
                 "((a<3) and (not (b>5)))", after pretreatment by ParamsSplitter,
-                it will become "(a<3)&(!(b>5))". And the expInfos should
+                it will become "(a<3)&(~(b>5))". And the expInfos should
                 be { "a<3:1", "b>5:9" }. For each row, we can get if its "a"
                 is less than 3 and "b" is greater than 5 so that we can replace
-                them with values for original expression like "(t)&(!(f))".
+                them with values for original expression like "(t)&(~(f))".
                 Then we pass this to LogicCalculator.calculate() and get the
                 final boolean result. If it's true, we will add this row into
                 matchedRows.
              */
-            for (Row row : rows) {
-                String simplerWhereForThisRow = simplerWhere;
+            for (Table.Row row : rows) {
+                String whereForThisRow = where;
 
                 /*
                     After replacing an atomic expression with its value for
@@ -128,36 +129,35 @@ public class Database {
 
                     // replace atomic expression with its value for this row
                     String[] binaryExp = splitter.splitBinaryExpression(exp);
+
                     int match = row.match(
                             binaryExp[0], binaryExp[1], binaryExp[2]);
                     if (match == -2) {
-                        throw new InvalidSqlException(
-                                "Wrong column names for this table");
+                        throw new InvalidSqlException(binaryExp[1] + " is not valid " +
+                                "operator");
                     } else if (match == -1) {
-                        throw new InvalidSqlException(
-                                "fields' types do not always equal constants' types");
+                        throw new InvalidSqlException(binaryExp[0] + "'s type cannot be " +
+                                "compared with argument's");
                     }
                     String replacement = match == 1 ? "t" : "f";
-                    simplerWhereForThisRow = replaceBetweenIndex(
-                            simplerWhereForThisRow, replacement,
+                    whereForThisRow = StringUtils.replaceSubstring(
+                            whereForThisRow, replacement,
                             index, index + expLength);
 
                     offset = offset + expLength - 1;
                 }
-                if (LogicCalculator.calculate(simplerWhereForThisRow)) {
+                if (LogicCalculator.calculate(whereForThisRow)) {
                     matchedRows.add(row);
                 }
             }
         }
 
         List<String> result = new ArrayList<>();
-        for (Row matchedRow : matchedRows) {
-            HashMap<String, Object> columnsAndValues =
-                    matchedRow.getColumnsAndValues(fieldNames);
+        for (Table.Row matchedRow : matchedRows) {
             StringBuilder sb = new StringBuilder();
-            for (Map.Entry entry : columnsAndValues.entrySet()) {
-                sb.append(entry.getKey()).append(":")
-                        .append(entry.getValue()).append(" ");
+            for (String fieldName : fieldNames) {
+                Object value = matchedRow.getValue(fieldName);
+                sb.append(fieldName).append(":").append(value).append(" ");
             }
             result.add(sb.toString());
         }
@@ -171,10 +171,5 @@ public class Database {
             }
         }
         return null;
-    }
-
-    private static String replaceBetweenIndex(String src, String replacement,
-                                             int from, int end) {
-        return src.substring(0, from) + replacement + src.substring(end, src.length());
     }
 }

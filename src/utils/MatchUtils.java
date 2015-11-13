@@ -2,11 +2,16 @@ package utils;
 
 /**
  * Created by 张启 on 2015/11/9.
- * utils for matching
+ * Utils for matching.
  */
 public class MatchUtils {
 
     private MatchUtils() {}
+
+    public static boolean isOperatorValid(String opr) {
+        return "=".equals(opr) || "!".equals(opr) || "<".equals(opr) || ">".equals(opr)
+                || "{".equals(opr) || "}".equals(opr);
+    }
 
     public static boolean match(int a, String opr, int b) {
         return match((double) a, opr, (double) b);
@@ -18,7 +23,7 @@ public class MatchUtils {
                 return false;
             case "=":
                 return a == b;
-            case "^":
+            case "!":
                 return a != b;
             case ">":
                 return a > b;
@@ -37,7 +42,7 @@ public class MatchUtils {
                 return false;
             case "=":
                 return a.equals(b);
-            case "^":
+            case "!":
                 return !a.equals(b);
             case ">":
                 return a.compareTo(b) > 0;

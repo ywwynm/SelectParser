@@ -11,7 +11,7 @@ public class LogicOperator implements Comparable<LogicOperator> {
 
     public static boolean isLogicOperator(char ch) {
         return ch == '#' || ch == '(' || ch == ')' || ch == '|'
-                || ch == '&' || ch == '!';
+                || ch == '&' || ch == '~';
     }
 
     public LogicOperator(char opr) {
@@ -23,7 +23,7 @@ public class LogicOperator implements Comparable<LogicOperator> {
             mLevel = 1;
         } else if (opr == '&') {
             mLevel = 2;
-        } else if (opr == '!') {
+        } else if (opr == '~') {
             mLevel = 3;
         }
         mOpr = opr;
