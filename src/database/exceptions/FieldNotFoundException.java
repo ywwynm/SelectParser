@@ -7,6 +7,6 @@ package database.exceptions;
 public class FieldNotFoundException extends Exception {
 
     public FieldNotFoundException(String columnName) {
-        super("Column " + "\"" + columnName + "\" does not exist");
+        super("Column " + "\"" + columnName + "\" does not exist in this table");
     }
 }

@@ -12,6 +12,8 @@ import java.util.Map;
 /**
  * Created by 张启 on 2015/11/3.
  * Table in database.
+ * A useful table should have {@link database.Table.Field}s and
+ * {@link database.Table.Row}s.
  */
 public class Table {
 
@@ -91,8 +93,30 @@ public class Table {
             if (value == null) {
                 throw new FieldNotFoundException(fieldName);
             }
-            if (!field.isValueMatchingType(value)) {
-                return false;
+
+            String fieldType = field.getType();
+            if ("integer".equals(fieldType)) {
+                if (!(value instanceof Integer)) {
+                    return false;
+                }
+            } else if ("double".equals(fieldType)) {
+                if (!(value instanceof Double)) {
+                    if (value instanceof Integer) {
+                        int trueValue = (Integer) value;
+                        rowData.put(fieldName, (double) trueValue);
+                    } else {
+                        return false;
+                    }
+                }
+            } else if ("varchar".equals(fieldType)) {
+                if (!(value instanceof String)) {
+                    return false;
+                } else {
+                    String trueValue = (String) value;
+                    if (!trueValue.startsWith("'") || !trueValue.endsWith("'")) {
+                        return false;
+                    }
+                }
             }
         }
         mRows.add(new Row(rowData));
@@ -151,7 +175,7 @@ public class Table {
                     } catch (NumberFormatException doubleE) {
                         return -1;
                     }
-                    return MatchUtils.match((Integer) value, opr, argDbl) ? 1 : 0;
+                    return MatchUtils.match((int) value, opr, argDbl) ? 1 : 0;
                 }
                 return MatchUtils.match((Integer) value, opr, argInt) ? 1 : 0;
             } else if ("double".equals(type) || "integer".equals(type)) {
@@ -161,7 +185,7 @@ public class Table {
                 } catch (NumberFormatException e) {
                     return -1;
                 }
-                return MatchUtils.match((Double) value, opr, argDbl) ? 1 : 0;
+                return MatchUtils.match((double) value, opr, argDbl) ? 1 : 0;
             } else if ("varchar".equals(type)) {
                 if (!arg.startsWith("'") || !arg.endsWith("'")) {
                     return -1;
@@ -212,28 +236,6 @@ public class Table {
 
         public String getType() {
             return mType;
-        }
-
-        public boolean isValueMatchingType(Object value) {
-            if ("integer".equals(mType)) {
-                if (!(value instanceof Integer)) {
-                    return false;
-                }
-            } else if ("double".equals(mType)) {
-                if (!(value instanceof Double) && !(value instanceof Integer)) {
-                    return false;
-                }
-            } else if ("varchar".equals(mType)) {
-                if (!(value instanceof String)) {
-                    return false;
-                } else {
-                    String trueValue = (String) value;
-                    if (!trueValue.startsWith("'") || !trueValue.endsWith("'")) {
-                        return false;
-                    }
-                }
-            }
-            return true;
         }
 
         @Override

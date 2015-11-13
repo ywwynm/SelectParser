@@ -15,25 +15,36 @@ public class Test {
         database.addTable(generateTestTable1());
         database.addTable(generateTestTable2());
 
-        List<String> result;
+        List<String> result = null;
         try {
+            long start = System.currentTimeMillis();
+
 //            result = database.query("select (*) from (user)");
+
+//            result = database.query("select (name) from (user) " +
+//                    "where (height >= 176)");
+//            result = database.query("select (*) from (user) " +
+//                    "where (age<>20.000000)");
 //            result = database.query("select (name, sex, height) from (user) " +
 //                    "where (((age=19) or (age=20)) and (not ((height>=175) or (weight<=60))))");
 //            result = database.query("select (*) from (user) " +
 //                    "where (((age > 19) and (sex='男')) or ((height<174) and (weight>=57)))");
-            result = database.query("select (name) from (user) " +
-                    "where (((not (not (name='zq')))) or (not (name<>'zq')))");
+
 //            result = database.query("select (name) from (user) " +
-//                    "where (height >= 176)");
+//                    "where (((not (not (name='zq')))) or (not (name<>'zq')))");
+
 //            result = database.query("select (selectFrom) from (strange_table) " +
 //                    "where (whereFrom >='b')");
-//            result = database.query("select (whereFrom) from (strange_table)" +
-//                    "where (hehe='lala')");
-//            result = database.query("select (*) from (user) " +
-//                    "where (age<>20.000000)");
-            System.out.println("result:");
-            result.forEach(System.out::println);
+            result = database.query("select (whereFrom) from (strange_table)" +
+                    "where (hehe='lala')");
+
+            long end = System.currentTimeMillis();
+
+            if (result != null) {
+                System.out.println("result:");
+                result.forEach(System.out::println);
+                System.out.println("It costs " + (end - start) + "ms to query.");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

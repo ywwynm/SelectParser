@@ -7,7 +7,7 @@ package database.exceptions;
 public class InvalidSqlException extends Exception {
 
     public InvalidSqlException() {
-        super("Invalid sql statement");
+        super("Invalid SQL statement");
     }
 
     public InvalidSqlException(String msg) {
