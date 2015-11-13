@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="dd99d073-9e66-4036-9f79-b117d37f7435" name="Default" comment="improve project structure">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/database/exceptions/FieldNotFoundException.java" afterPath="$PROJECT_DIR$/src/database/exceptions/FieldNotFoundException.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/database/exceptions/InvalidSqlException.java" afterPath="$PROJECT_DIR$/src/database/exceptions/InvalidSqlException.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/database/Table.java" afterPath="$PROJECT_DIR$/src/database/Table.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Test.java" afterPath="$PROJECT_DIR$/src/Test.java" />
+    <list default="true" id="dd99d073-9e66-4036-9f79-b117d37f7435" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/SelectParser/database/exceptions/InvalidSqlException.class" afterPath="$PROJECT_DIR$/out/production/SelectParser/database/exceptions/InvalidSqlException.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/SelectParser/database/Table.class" afterPath="$PROJECT_DIR$/out/production/SelectParser/database/Table.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/SelectParser/Test.class" afterPath="$PROJECT_DIR$/out/production/SelectParser/Test.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="SelectParser.iws" />
@@ -650,7 +649,7 @@
       <workItem from="1447217169060" duration="14332000" />
       <workItem from="1447253776042" duration="4132000" />
       <workItem from="1447315794488" duration="1597000" />
-      <workItem from="1447378968861" duration="19302000" />
+      <workItem from="1447378968861" duration="19388000" />
     </task>
     <task id="LOCAL-00001" summary="test git commit">
       <created>1447148048978</created>
@@ -694,11 +693,17 @@
       <option name="project" value="LOCAL" />
       <updated>1447423211427</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="improve project structure">
+      <created>1447429948636</created>
+      <option name="number" value="00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1447429948636</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="108478000" />
+    <option name="totallyTimeSpent" value="108564000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="784" extended-state="6" />
