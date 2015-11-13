@@ -25,7 +25,7 @@ public class Table {
         mName = name;
     }
 
-    public void setFields(String[] fieldNames, String[] fieldTypes) {
+    public boolean setFields(String[] fieldNames, String[] fieldTypes) {
         if (mFields == null) {
             mFields = new ArrayList<>();
         } else {
@@ -33,8 +33,7 @@ public class Table {
         }
         if (fieldNames == null || fieldTypes == null ||
                 fieldNames.length != fieldTypes.length) {
-            // todo exception here.
-            return;
+            return false;
         }
 
         mRows.clear();
@@ -42,6 +41,8 @@ public class Table {
             Field field = new Field(fieldNames[i], fieldTypes[i]);
             mFields.add(field);
         }
+
+        return true;
     }
 
     public String getName() {
@@ -77,25 +78,25 @@ public class Table {
         return mRows;
     }
 
-    public void addRow(LinkedHashMap<String, Object> rowData) {
+    public boolean addRow(LinkedHashMap<String, Object> rowData)
+            throws FieldNotFoundException {
         int size = rowData.size();
         if (size != mFields.size()) {
-            // todo exception here
-            return;
+            return false;
         }
         for (int i = 0; i < size; i++) {
             Field field = mFields.get(i);
             String fieldName = field.getName();
             Object value = rowData.get(fieldName);
             if (value == null) {
-                // todo exception here
-                return;
+                throw new FieldNotFoundException(fieldName);
             }
             if (!field.isValueMatchingType(value)) {
-                return;
+                return false;
             }
         }
         mRows.add(new Row(rowData));
+        return true;
     }
 
     class Row {

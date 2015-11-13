@@ -1,5 +1,6 @@
 import database.Database;
 import database.Table;
+import database.exceptions.FieldNotFoundException;
 
 import java.util.*;
 
@@ -57,7 +58,11 @@ public class Test {
             for (int j = 0; j < datas.length; j++) {
                 rowData.put(fieldNames[j], datas[j][i]);
             }
-            user.addRow(rowData);
+            try {
+                user.addRow(rowData);
+            } catch (FieldNotFoundException e) {
+                e.printStackTrace();
+            }
         }
         rowData = new LinkedHashMap<>(5);
         rowData.put("name", "'qhw'");
@@ -65,7 +70,11 @@ public class Test {
         rowData.put("age", 20);
         rowData.put("height", 168);
         rowData.put("weight", 54);
-        user.addRow(rowData);
+        try {
+            user.addRow(rowData);
+        } catch (FieldNotFoundException e) {
+            e.printStackTrace();
+        }
         return user;
     }
 
@@ -85,7 +94,11 @@ public class Test {
             for (int j = 0; j < datas.length; j++) {
                 rowData.put(fieldNames[j], datas[j][i]);
             }
-            strange.addRow(rowData);
+            try {
+                strange.addRow(rowData);
+            } catch (FieldNotFoundException e) {
+                e.printStackTrace();
+            }
         }
         return strange;
     }
