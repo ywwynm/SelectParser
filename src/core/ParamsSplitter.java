@@ -95,9 +95,9 @@ public class ParamsSplitter {
             return Collections.singletonList(mWhereParams + ":0");
         }
 
-        mWhereParams = replaceOperatorWithSignal(mWhereParams, "and", "&");
-        mWhereParams = replaceOperatorWithSignal(mWhereParams, "or",  "|");
-        mWhereParams = replaceOperatorWithSignal(mWhereParams, "not", "~");
+        mWhereParams = mWhereParams.replaceAll("\\)(?i)and\\(", "\\)&\\(");
+        mWhereParams = mWhereParams.replaceAll("\\)(?i)or\\(",  "\\)|\\(");
+        mWhereParams = mWhereParams.replaceAll("\\((?i)not\\(", "\\(~\\(");
 
         List<String> result = new ArrayList<>();
         int length = mWhereParams.length();
@@ -110,7 +110,7 @@ public class ParamsSplitter {
         int bracketIndex;
         for (int i = 0; i < length;) {
             c = mWhereParams.charAt(i);
-            if (c != '(' && c != ')'&& c != '&' && c != '|' && c != '~') {
+            if (!LogicOperator.isLogicOperator(c)) {
                 bracketIndex = mWhereParams.indexOf(")", i);
                 result.add(mWhereParams.substring(i, bracketIndex) + ":" + i);
                 i = bracketIndex + 1;
@@ -166,13 +166,5 @@ public class ParamsSplitter {
     private boolean isComparisonOperator(char c) {
         return c == '=' || c == '<' || c == '>'
                 || c == '{' || c == '}' || c == '!';
-    }
-
-    private String replaceOperatorWithSignal(String where, String opr, String signal) {
-        return where
-                .replaceAll(" " + opr + " ", " " + signal + " ")
-                .replaceAll("\\(" + opr, "\\(" + signal)
-                .replaceAll("\\)" + opr, "\\)" + signal)
-                .replaceAll(opr + "\\(", signal + "\\(");
     }
 }

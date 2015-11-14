@@ -27,16 +27,16 @@ public class Test {
 //                    "where (age<>20.000000)");
 //            result = database.query("select (name, sex, height) from (user) " +
 //                    "where (((age=19) or (age=20)) and (not ((height>=175) or (weight<=60))))");
-//            result = database.query("select (*) from (user) " +
-//                    "where (((age > 19) and (sex='男')) or ((height<174) and (weight>=57)))");
+            result = database.query("select (*) from (user) " +
+                    "where (((age > 19) AND (sex='男')) or ((height<174) and (weight>=57)))");
 
 //            result = database.query("select (name) from (user) " +
 //                    "where (((not (not (name='zq')))) or (not (name<>'zq')))");
 
 //            result = database.query("select (selectFrom) from (strange_table) " +
 //                    "where (whereFrom >='b')");
-            result = database.query("select (whereFrom) from (strange_table)" +
-                    "where (hehe='lala')");
+//            result = database.query("select (whereFrom) from (strange_table)" +
+//                    "where (hehe='lala')");
 
             long end = System.currentTimeMillis();
 

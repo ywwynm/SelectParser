@@ -123,7 +123,32 @@ public class Table {
         return true;
     }
 
+    class Field {
+
+        private String mName;
+        private String mType;
+
+        public Field(String name, String type) {
+            mName = name;
+            mType = type;
+        }
+
+        public String getName() {
+            return mName;
+        }
+
+        public String getType() {
+            return mType;
+        }
+
+        @Override
+        public String toString() {
+            return "field.name:" + mName + ", field.type:" + mType;
+        }
+    }
+
     class Row {
+
         private LinkedHashMap<String, Object> mData;
 
         public Row(LinkedHashMap<String, Object> rowData) {
@@ -217,30 +242,6 @@ public class Table {
                 sb.append(" ");
             }
             return sb.toString();
-        }
-    }
-
-    class Field {
-
-        private String mName;
-        private String mType;
-
-        public Field(String name, String type) {
-            mName = name;
-            mType = type;
-        }
-
-        public String getName() {
-            return mName;
-        }
-
-        public String getType() {
-            return mType;
-        }
-
-        @Override
-        public String toString() {
-            return "field.name:" + mName + ", field.type:" + mType;
         }
     }
 }
