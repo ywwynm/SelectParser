@@ -42,8 +42,8 @@ public class ParamsSplitter {
             params.add(selectStr.substring(tl + 1, lr));
         }
 
-        mSelectParams = params.get(0);
-        mFromParams = params.get(1);
+        mSelectParams = params.get(0).replaceAll(" ", "");
+        mFromParams = params.get(1).replaceAll(" ", "");
         if (tl == -1) { // no "where"
             mWhereParams = "";
         } else {
@@ -60,8 +60,7 @@ public class ParamsSplitter {
             return null;
         }
 
-        String params = mSelectParams.replaceAll(" ", "");
-        String[] result = params.split(",");
+        String[] result = mSelectParams.split(",");
         return Arrays.asList(result);
     }
 

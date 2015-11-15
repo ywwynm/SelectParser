@@ -15,16 +15,26 @@ public class Test {
         database.addTable(generateTestTable1());
         database.addTable(generateTestTable2());
 
-        List<String> result = null;
+        List<String> result;
         try {
+            /*
+                You can test here.
+                There are two tables:
+                Table user has following fields: name, sex, age, height and weight;
+                Table strange_table has following fields: selectFrom and whereFrom.
+
+                For field that type is varchar, when you want to compare it with a
+                constant, it should be typed like 'hello'.
+             */
+
             long start = System.currentTimeMillis();
 
 //            result = database.query("select (*) from (user)");
 
 //            result = database.query("select (name) from (user) " +
 //                    "where (height >= 176)");
-//            result = database.query("select (*) from (user) " +
-//                    "where (age<>20.000000)");
+//            result = database.query("    select (* )   from (user ) " +
+//                    "where (age     <>20.000000)   ");
 //            result = database.query("select (name, sex, height) from (user) " +
 //                    "where (((age=19) or (age=20)) and (not ((height>=175) or (weight<=60))))");
             result = database.query("select (*) from (user) " +
@@ -35,16 +45,16 @@ public class Test {
 
 //            result = database.query("select (selectFrom) from (strange_table) " +
 //                    "where (whereFrom >='b')");
+//            result = database.query("select (selectFrom) from (strange_table) " +
+//                    "where (whereFrom >=b)");
 //            result = database.query("select (whereFrom) from (strange_table)" +
 //                    "where (hehe='lala')");
 
             long end = System.currentTimeMillis();
 
-            if (result != null) {
-                System.out.println("result:");
-                result.forEach(System.out::println);
-                System.out.println("It costs " + (end - start) + "ms to query.");
-            }
+            System.out.println("result:");
+            result.forEach(System.out::println);
+            System.out.println("It costs " + (end - start) + "ms to query.");
         } catch (Exception e) {
             e.printStackTrace();
         }
