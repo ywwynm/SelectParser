@@ -2,19 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dd99d073-9e66-4036-9f79-b117d37f7435" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/SelectParser/database/Database.class" afterPath="$PROJECT_DIR$/out/production/SelectParser/database/Database.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/SelectParser/core/LogicCalculator.class" afterPath="$PROJECT_DIR$/out/production/SelectParser/core/LogicCalculator.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/SelectParser/utils/MatchUtils.class" afterPath="$PROJECT_DIR$/out/production/SelectParser/utils/MatchUtils.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/SelectParser/core/ParamsSplitter.class" afterPath="$PROJECT_DIR$/out/production/SelectParser/core/ParamsSplitter.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/SelectParser/database/Table.class" afterPath="$PROJECT_DIR$/out/production/SelectParser/database/Table.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/SelectParser/Test.class" afterPath="$PROJECT_DIR$/out/production/SelectParser/Test.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/database/Database.java" afterPath="$PROJECT_DIR$/src/database/Database.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/core/LogicCalculator.java" afterPath="$PROJECT_DIR$/src/core/LogicCalculator.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/utils/MatchUtils.java" afterPath="$PROJECT_DIR$/src/utils/MatchUtils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/core/ParamsSplitter.java" afterPath="$PROJECT_DIR$/src/core/ParamsSplitter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/utils/StringUtils.java" afterPath="$PROJECT_DIR$/src/utils/StringUtils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/database/Table.java" afterPath="$PROJECT_DIR$/src/database/Table.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="SelectParser.iws" />
@@ -635,7 +622,7 @@
       <workItem from="1447978270092" duration="13664000" />
       <workItem from="1448201005343" duration="1197000" />
       <workItem from="1448279576268" duration="726000" />
-      <workItem from="1448850052982" duration="23000" />
+      <workItem from="1448850052982" duration="112000" />
     </task>
     <task id="LOCAL-00001" summary="test git commit">
       <created>1447148048978</created>
@@ -703,11 +690,17 @@
       <option name="project" value="LOCAL" />
       <updated>1447557885929</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="bug fixes and structure improves">
+      <created>1448850115508</created>
+      <option name="number" value="00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1448850115508</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="145355000" />
+    <option name="totallyTimeSpent" value="145444000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="784" extended-state="6" />
@@ -715,6 +708,7 @@
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3288889" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3288889" sideWeight="0.50292826" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -722,14 +716,13 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20131771" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20131771" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3288889" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -783,7 +776,8 @@
     <MESSAGE value="fix bugs when there are multi &quot;select&quot;s" />
     <MESSAGE value="improve project structure" />
     <MESSAGE value="bug fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="bug fixes" />
+    <MESSAGE value="bug fixes and structure improves" />
+    <option name="LAST_COMMIT_MESSAGE" value="bug fixes and structure improves" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
