@@ -4,6 +4,7 @@ import core.LogicCalculator;
 import core.ParamsSplitter;
 import database.exceptions.FieldNotFoundException;
 import database.exceptions.InvalidSqlException;
+import javafx.util.Pair;
 import utils.StringUtils;
 
 import java.util.ArrayList;
@@ -50,12 +51,9 @@ public class Database {
             throw new InvalidSqlException("SQL statement is empty");
         }
         ParamsSplitter splitter = new ParamsSplitter(sql);
+        String from = splitter.getFromParams();
 
-        String select = splitter.getSelectParams();
-        String from   = splitter.getFromParams();
-        String where  = splitter.getWhereParams();
-
-        if (select.isEmpty() || from.isEmpty()) {
+        if (splitter.getSelectParams().isEmpty() || from.isEmpty()) {
             throw new InvalidSqlException();
         }
 
@@ -65,30 +63,60 @@ public class Database {
                     "in this database");
         }
 
-        List<Table.Field> fields;
-        if ("*".equals(select)) {
-            fields = table.getFields();
+        String[] fieldNames = getFieldNamesForSelect(table, splitter);
+
+        List<Table.Row> matchedRows;
+        if (splitter.getWhereParams().isEmpty()) {
+            matchedRows = table.getRows();
         } else {
-            fields = table.getFieldsByNames(splitter.splitSelectParams());
+            matchedRows = queryForExps(table, splitter);
         }
 
+        return getQueryResultDescriptions(matchedRows, fieldNames);
+    }
+
+    public Table getTableByName(String name) {
+        for (Table table : mTables) {
+            if (name.equals(table.getName())) {
+                return table;
+            }
+        }
+        return null;
+    }
+
+    private List<Table.Field> getFieldsForSelect(Table table,
+                                                 ParamsSplitter splitter)
+            throws FieldNotFoundException {
+        String select = splitter.getSelectParams();
+        if ("*".equals(select)) {
+            return table.getFields();
+        } else {
+            return table.getFieldsByNames(splitter.splitSelectParams());
+        }
+    }
+
+    private String[] getFieldNamesForSelect(Table table,
+                                            ParamsSplitter splitter)
+            throws FieldNotFoundException {
+        List<Table.Field> fields = getFieldsForSelect(table, splitter);
         String[] fieldNames = new String[fields.size()];
         for (int i = 0; i < fieldNames.length; i++) {
             fieldNames[i] = fields.get(i).getName();
         }
+        return fieldNames;
+    }
 
+    private List<Table.Row> queryForExps(Table table, ParamsSplitter splitter)
+            throws InvalidSqlException, FieldNotFoundException {
+        List<Table.Row> rows = table.getRows();
         List<Table.Row> matchedRows = new ArrayList<>();
-        if (where.isEmpty()) {
-            matchedRows = table.getRows();
-        } else {
-            List<Table.Row> rows = table.getRows();
 
-            // Atomic expressions with their indexes after "where".
-            List<String> expInfos = splitter.splitWhereParams();
+        // Atomic expressions with their indexes after "where".
+        List<String> expInfos = splitter.splitWhereParams();
 
-            // The expression after "where" with logical operator in words
-            // replaced with signals.
-            where = splitter.getWhereParams();
+        // The expression after "where" with logical operator in words
+        // replaced with signals.
+        String where = splitter.getWhereParams();
 
             /*
                 The basic thought of this algorithm is to replace every
@@ -105,71 +133,89 @@ public class Database {
                 final boolean result. If it's true, we will add this row into
                 matchedRows.
              */
-            for (Table.Row row : rows) {
-                String whereForThisRow = where;
-
-                /*
-                    After replacing an atomic expression with its value for
-                    given row, the index of next expression will change. We
-                    need to track this change.
-                 */
-                int offset = 0;
-                for (String expInfo : expInfos) {
-                    // Get the atomic expression
-                    int colon = expInfo.lastIndexOf(":");
-                    String exp = expInfo.substring(0, colon);
-                    int expLength = exp.length();
-
-                    // Get index of atomic expression in original
-                    // expression(simplerWhere)
-                    int expInfoLength = expInfo.length();
-                    int index = Integer.valueOf(expInfo
-                            .substring(colon + 1, expInfoLength));
-                    index -= offset;
-
-                    // replace atomic expression with its value for this row
-                    String[] binaryExp = splitter.splitBinaryExpression(exp);
-
-                    int match = row.match(
-                            binaryExp[0], binaryExp[1], binaryExp[2]);
-                    if (match == -2) {
-                        throw new InvalidSqlException(binaryExp[1] + " is not valid " +
-                                "operator");
-                    } else if (match == -1) {
-                        throw new InvalidSqlException(binaryExp[0] + "'s type cannot be " +
-                                "compared with argument's");
-                    }
-                    String replacement = match == 1 ? "t" : "f";
-                    whereForThisRow = StringUtils.replaceSubstring(
-                            whereForThisRow, replacement,
-                            index, index + expLength);
-
-                    offset = offset + expLength - 1;
-                }
-                if (LogicCalculator.calculate(whereForThisRow)) {
-                    matchedRows.add(row);
-                }
+        for (Table.Row row : rows) {
+            if (isRowMatchExp(row, expInfos, where, splitter)) {
+                matchedRows.add(row);
             }
         }
-
-        List<String> result = new ArrayList<>();
-        for (Table.Row matchedRow : matchedRows) {
-            StringBuilder sb = new StringBuilder();
-            for (String fieldName : fieldNames) {
-                Object value = matchedRow.getValue(fieldName);
-                sb.append(fieldName).append(":").append(value).append(" ");
-            }
-            result.add(sb.toString());
-        }
-        return result;
+        return matchedRows;
     }
 
-    public Table getTableByName(String name) {
-        for (Table table : mTables) {
-            if (name.equals(table.getName())) {
-                return table;
-            }
+    private boolean isRowMatchExp(Table.Row row, List<String> expInfos,
+                                  String where, ParamsSplitter splitter)
+            throws FieldNotFoundException, InvalidSqlException {
+        // The expression after "where" with logical operator in words
+        // replaced with signals.
+        String whereForThisRow = where;
+
+        /*
+           After replacing an atomic expression with its value for
+           given row, the index of next expression will change. We
+           need to track this change.
+        */
+        int offset = 0;
+        for (String expInfo : expInfos) {
+            Pair<String, Integer> pair = replaceExpWithValue(row, expInfo,
+                    offset, splitter, whereForThisRow);
+            whereForThisRow = pair.getKey();
+            offset = pair.getValue();
         }
-        return null;
+        return LogicCalculator.calculate(whereForThisRow);
+    }
+
+    private Pair<String, Integer> replaceExpWithValue(Table.Row row, String expInfo, int offset,
+                                                      ParamsSplitter splitter, String where)
+            throws InvalidSqlException, FieldNotFoundException {
+        // Get the atomic expression
+        int colon = expInfo.lastIndexOf(":");
+        String exp = expInfo.substring(0, colon);
+        int expLength = exp.length();
+
+        // Get index of atomic expression in original
+        // expression(simplerWhere)
+        int expInfoLength = expInfo.length();
+        int index = Integer.valueOf(expInfo
+                .substring(colon + 1, expInfoLength));
+        index -= offset;
+
+        String replacement = getReplacementForExp(row, exp, splitter);
+
+        String updatedWhere = StringUtils.replaceSubstring(
+                where, replacement,
+                index, index + expLength);
+        int updatedOffset = offset + expLength - 1;
+        return new Pair<>(updatedWhere, updatedOffset);
+    }
+
+    private String getReplacementForExp(Table.Row row, String exp, ParamsSplitter splitter)
+            throws FieldNotFoundException, InvalidSqlException {
+        // replace atomic expression with its value for this row
+        String[] binaryExp = splitter.splitBinaryExpression(exp);
+
+        int match = row.match(
+                binaryExp[0], binaryExp[1], binaryExp[2]);
+        if (match == -2) {
+            throw new InvalidSqlException(binaryExp[1] + " is not valid " +
+                    "operator");
+        } else if (match == -1) {
+            throw new InvalidSqlException(binaryExp[0] + "'s type cannot be " +
+                    "compared with argument's");
+        }
+        return match == 1 ? "t" : "f";
+    }
+
+    private List<String> getQueryResultDescriptions(List<Table.Row> rows,
+                                                    String[] fieldNames)
+            throws FieldNotFoundException {
+        List<String> descriptions = new ArrayList<>();
+        for (Table.Row row : rows) {
+            StringBuilder sb = new StringBuilder();
+            for (String fieldName : fieldNames) {
+                Object value = row.getValue(fieldName);
+                sb.append(fieldName).append(":").append(value).append(" ");
+            }
+            descriptions.add(sb.toString());
+        }
+        return descriptions;
     }
 }

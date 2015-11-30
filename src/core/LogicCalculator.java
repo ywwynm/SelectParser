@@ -17,6 +17,11 @@ public class LogicCalculator {
      * @return the result of this expression.
      */
     public static boolean calculate(String exp) {
+        String finalExp = prepareForCalculate(exp);
+        return calculateUsingStack(finalExp);
+    }
+
+    private static String prepareForCalculate(String exp) {
         // Delete useless brackets.
         String finalExp = exp.replaceAll("\\(f\\)", "f");
         finalExp = finalExp.replaceAll("\\(t\\)", "t");
@@ -26,7 +31,10 @@ public class LogicCalculator {
         finalExp = finalExp.replaceAll("\\(~t\\)", "f");
         finalExp = finalExp.replaceAll("\\(~f\\)", "t");
         finalExp += '#';
+        return finalExp;
+    }
 
+    private static boolean calculateUsingStack(String exp) {
         /*
             The basic thought of this algorithm is to create two stacks
             to store operators and booleans and continuously push operators
@@ -68,43 +76,14 @@ public class LogicCalculator {
 
         Stack<LogicOperator> operators = new Stack<>();
         operators.push(new LogicOperator('#'));
-
         Stack<Boolean> booleans = new Stack<>();
 
-        int length = finalExp.length();
+        int length = exp.length();
         char c, lastBool = 0;
         for (int i = 0; i < length; i++) {
-            c = finalExp.charAt(i);
+            c = exp.charAt(i);
             if (LogicOperator.isLogicOperator(c)) {
-                if (lastBool != 0) {
-                    booleans.push(lastBool == 't');
-                    lastBool = 0;
-                }
-
-                LogicOperator curOpr = new LogicOperator(c);
-                while (!operators.empty()) {
-                    LogicOperator topOpr = operators.pop();
-
-                    int cmp = topOpr.compareTo(curOpr);
-                    if (cmp < 0 || c == '(') {
-                        operators.push(topOpr);
-                        operators.push(curOpr);
-                        break;
-                    } else if (cmp > 0 || (cmp == 0 && topOpr.getLevel() > 0)) {
-                        char opr = topOpr.toChar();
-                        if (opr == '~') {
-                            booleans.push(!booleans.pop());
-                        } else {
-                            boolean b2 = booleans.pop();
-                            boolean b1 = booleans.pop();
-                            booleans.push(calculate(b1, opr, b2));
-                        }
-                    } else if (cmp == 0) {
-                        break;
-                    } else {
-                        operators.push(topOpr);
-                    }
-                }
+                lastBool = calculateMeetingOperator(c, lastBool, operators, booleans);
             } else {
                 lastBool = c;
             }
@@ -113,14 +92,68 @@ public class LogicCalculator {
         return booleans.pop();
     }
 
-    private static boolean calculate(boolean b1, char opr, boolean b2) {
-        switch (opr) {
-            default:
-                return false;
-            case '|':
-                return b1 || b2;
-            case '&':
-                return b1 && b2;
+    private static char calculateMeetingOperator(char opr, char lastBool,
+                                                 Stack<LogicOperator> operators,
+                                                 Stack<Boolean> booleans) {
+        char updatedLastBool = lastBool;
+        if (lastBool != 0) {
+            booleans.push(lastBool == 't');
+            updatedLastBool = 0;
+        }
+
+        LogicOperator curOpr = new LogicOperator(opr);
+        while (!operators.empty()) {
+            if (compareToCalculate(curOpr, operators, booleans)) {
+                break;
+            }
+        }
+        return updatedLastBool;
+    }
+
+    /**
+     * Compare current operator with top operator in stack {@param operators},
+     * calculate if necessary and handle results with stacks.
+     * @return {@code true} if all comparisons are done, which means we should
+     *          read next character. {@code false} otherwise.
+     */
+    private static boolean compareToCalculate(LogicOperator curOpr,
+                                              Stack<LogicOperator> operators,
+                                              Stack<Boolean> booleans) {
+        boolean shouldBreak = false;
+        LogicOperator topOpr = operators.pop();
+
+        int cmp = topOpr.compareTo(curOpr);
+        if (cmp < 0 || curOpr.toChar() == '(') {
+            operators.push(topOpr);
+            operators.push(curOpr);
+            shouldBreak = true;
+        } else if (cmp > 0 || (cmp == 0 && topOpr.getLevel() > 0)) {
+            doCalculate(topOpr.toChar(), booleans);
+        } else if (cmp == 0) {
+            shouldBreak = true;
+        } else {
+            operators.push(topOpr);
+        }
+        return shouldBreak;
+    }
+
+    private static void doCalculate(char opr, Stack<Boolean> booleans) {
+        if (opr == '~') {
+            booleans.push(!booleans.pop());
+        } else {
+            boolean b2 = booleans.pop();
+            boolean b1 = booleans.pop();
+            booleans.push(doCalculate(b1, opr, b2));
+        }
+    }
+
+    private static boolean doCalculate(boolean b1, char opr, boolean b2) {
+        if (opr == '|') {
+            return b1 || b2;
+        } else if (opr == '&') {
+            return b1 && b2;
+        } else {
+            return false;
         }
     }
 }

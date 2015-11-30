@@ -94,29 +94,9 @@ public class Table {
                 throw new FieldNotFoundException(fieldName);
             }
 
-            String fieldType = field.getType();
-            if ("integer".equals(fieldType)) {
-                if (!(value instanceof Integer)) {
-                    return false;
-                }
-            } else if ("double".equals(fieldType)) {
-                if (!(value instanceof Double)) {
-                    if (value instanceof Integer) {
-                        int trueValue = (Integer) value;
-                        rowData.put(fieldName, (double) trueValue);
-                    } else {
-                        return false;
-                    }
-                }
-            } else if ("varchar".equals(fieldType)) {
-                if (!(value instanceof String)) {
-                    return false;
-                } else {
-                    String trueValue = (String) value;
-                    if (!trueValue.startsWith("'") || !trueValue.endsWith("'")) {
-                        return false;
-                    }
-                }
+            if (!MatchUtils.isValueMatchType(value, field.getType(),
+                    rowData, fieldName)) {
+                return false;
             }
         }
         mRows.add(new Row(rowData));
@@ -186,40 +166,7 @@ public class Table {
             }
 
             Field field = getFieldByName(fieldName);
-            String type = field.getType();
-
-            if ("integer".equals(type)) {
-                Integer argInt;
-                try {
-                    argInt = Integer.valueOf(arg);
-                } catch (NumberFormatException e) {
-                    // integer column's value can compare with double argument.
-                    Double argDbl;
-                    try {
-                        argDbl = Double.valueOf(arg);
-                    } catch (NumberFormatException doubleE) {
-                        return -1;
-                    }
-                    return MatchUtils.match((int) value, opr, argDbl) ? 1 : 0;
-                }
-                return MatchUtils.match((Integer) value, opr, argInt) ? 1 : 0;
-            } else if ("double".equals(type) || "integer".equals(type)) {
-                Double argDbl;
-                try {
-                    argDbl = Double.valueOf(arg);
-                } catch (NumberFormatException e) {
-                    return -1;
-                }
-                return MatchUtils.match((double) value, opr, argDbl) ? 1 : 0;
-            } else if ("varchar".equals(type)) {
-                if (!arg.startsWith("'") || !arg.endsWith("'")) {
-                    return -1;
-                } else {
-                    return MatchUtils.match(((String) value).replaceAll("'", ""),
-                            opr, arg.replaceAll("'", "")) ? 1 : 0;
-                }
-            }
-            return 0;
+            return MatchUtils.isValueMatchComparison(value, opr, arg, field.getType());
         }
 
         public Object getValue(String columnName) throws FieldNotFoundException {

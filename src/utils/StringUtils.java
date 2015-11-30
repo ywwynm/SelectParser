@@ -17,4 +17,26 @@ public class StringUtils {
         return src.substring(0, from) + replacement + src.substring(end, src.length());
     }
 
+    public static boolean containsIgnoreCase(String src, String dst) {
+        return src.toLowerCase().contains(dst.toLowerCase());
+    }
+
+    public static String replaceAll(String src, String dst, String replacement) {
+        if (!containsIgnoreCase(src, dst)) {
+            return src;
+        }
+
+        int srcLen = src.length();
+        int dstLen = dst.length();
+        for (int s = 0; s < srcLen; s++) {
+            int e = s + dstLen;
+            String sub = src.substring(s, e);
+            if (sub.equals(dst)) {
+                return replaceAll(replaceSubstring(src, replacement, s, e),
+                        dst, replacement);
+            }
+        }
+        return src;
+    }
+
 }

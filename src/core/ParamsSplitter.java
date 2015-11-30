@@ -96,7 +96,7 @@ public class ParamsSplitter {
 
         mWhereParams = mWhereParams.replaceAll("\\)(?i)and\\(", "\\)&\\(");
         mWhereParams = mWhereParams.replaceAll("\\)(?i)or\\(",  "\\)|\\(");
-        mWhereParams = mWhereParams.replaceAll("\\((?i)not\\(", "\\(~\\(");
+        mWhereParams = StringUtils.replaceAll(mWhereParams, "(not(", "(~(");
 
         List<String> result = new ArrayList<>();
         int length = mWhereParams.length();
